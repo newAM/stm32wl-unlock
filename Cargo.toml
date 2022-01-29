@@ -1,0 +1,16 @@
+[package]
+name = "stm32wl-unlock"
+version = "0.1.0"
+edition = "2021"
+
+description = "Unlock the flash on STM32WL microcontrollers"
+readme = "README.md"
+authors = ["Alex Martens <alex@thinglab.org>"]
+categories = ["embedded", "hardware-support"]
+keywords = ["embedded"]
+repository = "https://github.com/newam/stm32wl-unlock"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "3", features = ["derive"] }
+probe-rs = "0.12"

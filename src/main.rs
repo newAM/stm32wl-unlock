@@ -13,7 +13,6 @@ const FLASH_OPTR_ADDR: u32 = 0x5800_4020;
 const FLASH_PCROP1AER_ADDR: u32 = 0x5800_4028;
 
 const PCROP_RDP_MASK: u32 = 1 << 31;
-const OBL_LAUNCH_MASK: u32 = 1 << 27;
 const OPTSTRT_MASK: u32 = 1 << 17;
 const BSY_MASK: u32 = 1 << 16;
 const PESD_MASK: u32 = 1 << 19;
@@ -61,17 +60,6 @@ struct Args {
 
 fn target() -> Target {
     probe_rs::config::get_target_by_name("STM32WLE5JCIx").unwrap()
-}
-
-fn reload_option_bytes(core: &mut Core) -> anyhow::Result<()> {
-    let flash_cr: u32 = core
-        .read_word_32(FLASH_CR_ADDR)
-        .context("failed to read FLASH_CR")?;
-
-    core.write_word_32(FLASH_CR_ADDR, flash_cr | OBL_LAUNCH_MASK)
-        .context("failed to write FLASH_CR")?;
-
-    Ok(())
 }
 
 fn set_pcrop_rdp(core: &mut Core) -> anyhow::Result<()> {
@@ -198,20 +186,8 @@ fn main() -> anyhow::Result<()> {
                 }
             }
 
-            // verify RDP was actually set
-            reload_option_bytes(&mut core).context("failed to reload options bytes")?;
-
-            let flash_optr: u32 = core
-                .read_word_32(FLASH_OPTR_ADDR)
-                .context("failed to read FLASH_OPTR")?;
-
-            let new_rdp: Rdp = Rdp::from(flash_optr as u8);
-            if new_rdp != Rdp::Lvl0 {
-                Err(anyhow!("failed to set RDP level 0, RDP is level {new_rdp}"))
-            } else {
-                println!("flash protection set to level {}", Rdp::Lvl0);
-                Ok(())
-            }
+            println!("flash protection set to level {}", Rdp::Lvl0);
+            Ok(())
         }
         Rdp::Lvl2 => Err(anyhow!("RDP level 2 cannot be removed")),
     }

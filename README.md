@@ -9,9 +9,11 @@ This is useful for the seeed studio STM32WL modules that have flash protection b
 ## Installation
 
 1. Install [rustup](https://rustup.rs/)
-2. `cargo install --git https://github.com/newam/stm32wl-unlock.git`
+2. `cargo install --git https://github.com/newAM/stm32wl-unlock.git`
 
 ## Example
+
+For the seeed modules you will want to hold the reset button for the entire process.
 
 ```console
 $ stm32wl-unlock

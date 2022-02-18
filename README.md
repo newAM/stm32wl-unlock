@@ -4,7 +4,7 @@ Unlock the flash on STM32WL microcontrollers.
 
 This is useful for the seeed studio STM32WL modules that have flash protection bits set.
 
-⚠️ This will dystroy the flash contents on your chip, in the case of seeed modules this process is not reversible. ⚠️
+⚠️ This will destroy the flash contents on your chip, in the case of seeed modules this process is not reversible. ⚠️
 
 ## Installation
 

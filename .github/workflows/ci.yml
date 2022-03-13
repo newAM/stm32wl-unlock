@@ -19,38 +19,21 @@ jobs:
       RUSTDOCFLAGS: "-D warnings"
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Install libusb, libudev
-        run: |
-          sudo apt update
-          sudo apt install -y libusb-1.0-0-dev libudev-dev
-      - run: cargo build --all-features
-      - run: cargo test --all-features
+      - uses: cachix/install-nix-action@v16
+      - run: nix build
 
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: clippy
-      - name: Install libusb, libudev
-        run: |
-          sudo apt update
-          sudo apt install -y libusb-1.0-0-dev libudev-dev
-      - run: cargo clippy --all-features -- --deny warnings
+      - uses: cachix/install-nix-action@v16
+      - run: nix develop -c cargo clippy --all-features -- --deny warnings
 
   format:
     name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: rustfmt
-      - run: cargo fmt -- --check
+      - uses: cachix/install-nix-action@v16
+      - run: nix flake check

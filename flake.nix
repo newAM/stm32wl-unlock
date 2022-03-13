@@ -21,6 +21,8 @@
 
         src = ./.;
 
+        RUSTFLAGS = "-D warnings";
+
         inherit buildInputs nativeBuildInputs;
 
         cargoLock.lockFile = ./Cargo.lock;

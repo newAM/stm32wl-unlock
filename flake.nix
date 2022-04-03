@@ -8,16 +8,16 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       nativeBuildInputs = with pkgs; [ pkg-config ];
       buildInputs = with pkgs; [ libusb1 udev ];
-      cargoToml = (builtins.fromTOML (builtins.readFile ./Cargo.toml));
+      cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
     in
     {
-      devShell.x86_64-linux = pkgs.mkShell {
+      devShells.x86_64-linux.default = pkgs.mkShell {
         buildInputs = buildInputs ++ nativeBuildInputs;
       };
 
       packages.x86_64-linux.${cargoToml.package.name} = pkgs.rustPlatform.buildRustPackage {
         pname = cargoToml.package.name;
-        version = cargoToml.package.version;
+        inherit (cargoToml.package) version;
 
         src = ./.;
 
@@ -30,13 +30,13 @@
         doCheck = true;
 
         meta = with pkgs.lib; {
-          description = cargoToml.package.description;
+          inherit (cargoToml.package) description;
           homepage = cargoToml.package.repository;
           license = with licenses; [ mit ];
         };
       };
 
-      defaultPackage.x86_64-linux = self.packages.x86_64-linux.${cargoToml.package.name};
+      packages.x86_64-linux.default = self.packages.x86_64-linux.${cargoToml.package.name};
 
       checks.x86_64-linux = {
         format = pkgs.runCommand "format"

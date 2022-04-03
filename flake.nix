@@ -50,7 +50,7 @@
         '';
 
         lint = pkgs.runCommand "lint" { } ''
-          ${pkgs.statix}/bin/statix check
+          ${pkgs.statix}/bin/statix check ${./.}
           touch $out
         '';
       };

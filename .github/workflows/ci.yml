@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
-      - run: nix build
+      - run: nix build -L
 
   clippy:
     name: Clippy
@@ -33,4 +33,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
-      - run: nix flake check
+      - run: nix flake check -L

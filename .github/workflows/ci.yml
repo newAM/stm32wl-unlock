@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
-      - run: nix shell --ignore-environment -c cargo clippy --all-features -- --deny warnings
+      - run: nix develop --ignore-environment -c cargo clippy --all-features -- --deny warnings
 
   format:
     name: Format

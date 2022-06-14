@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, crane, flake-utils, ... }:
+  outputs = { self, nixpkgs, crane, flake-utils }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         pkgs = import nixpkgs {
@@ -49,6 +49,9 @@
       in
       rec {
         packages.default = pkg;
+
+        apps.default = flake-utils.lib.mkApp { drv = packages.default; };
+
         checks = {
           inherit pkg clippy;
 
@@ -68,46 +71,4 @@
           '';
         };
       });
-
-  #outputs = { self, nixpkgs }:
-  #  let
-  #    pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  #    cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
-  #  in
-  #  {
-  #    packages.x86_64-linux.${cargoToml.package.name} = pkgs.callPackage ./package.nix { };
-  #    apps.x86_64-linux.${cargoToml.package.name} = {
-  #      type = "app";
-  #      program = "${self.packages.x86_64-linux.default}/bin/${cargoToml.package.name}";
-  #    };
-  #    apps.x86_64-linux.default = self.apps.x86_64-linux.${cargoToml.package.name};
-
-  #    packages.x86_64-linux.default = self.packages.x86_64-linux.${cargoToml.package.name};
-
-  #    devShells.x86_64-linux.default = pkgs.mkShell {
-  #      nativeBuildInputs = self.packages.x86_64-linux.default.nativeBuildInputs ++ [
-  #        pkgs.gcc
-  #      ];
-  #      buildInputs = self.packages.x86_64-linux.default.buildInputs ++ [
-  #        pkgs.clippy
-  #      ];
-  #    };
-
-  #    checks.x86_64-linux = {
-  #      format = pkgs.runCommand "format"
-  #        {
-  #          inherit (self.packages.x86_64-linux.default) nativeBuildInputs;
-  #          buildInputs = with pkgs; [ rustfmt cargo ] ++ self.packages.x86_64-linux.default.buildInputs;
-  #        } ''
-  #        ${pkgs.rustfmt}/bin/cargo-fmt fmt --manifest-path ${./.}/Cargo.toml -- --check
-  #        ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt --check ${./.}
-  #        touch $out
-  #      '';
-
-  #      lint = pkgs.runCommand "lint" { } ''
-  #        ${pkgs.statix}/bin/statix check ${./.}
-  #        touch $out
-  #      '';
-  #    };
-  #  };
 }

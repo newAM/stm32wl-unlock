@@ -11,26 +11,9 @@ on:
 name: CI
 
 jobs:
-  build:
-    name: Build and Test
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: cachix/install-nix-action@v17
-      - run: nix build -L
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v17
-      - run: nix develop --ignore-environment -c cargo clippy --all-features -- --deny warnings
-
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v17
-      - run: nix flake check -L
+      - run: nix flake check

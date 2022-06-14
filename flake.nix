@@ -12,6 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
+
   outputs = { self, nixpkgs, crane, flake-utils }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let

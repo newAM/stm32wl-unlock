@@ -2,7 +2,7 @@
   description = "Unlock the flash on STM32WL microcontrollers";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     crane = {
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -20,7 +20,6 @@
         };
 
         cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
-        pkgName = "${cargoToml.package.name}";
 
         craneLib = crane.lib.${system};
 
@@ -36,7 +35,7 @@
         };
 
         cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {
-          pname = "${pkgName}-deps";
+          pname = "${cargoToml.package.name}-deps";
         });
 
         clippy = craneLib.cargoClippy (commonArgs // {
@@ -44,14 +43,14 @@
           cargoClippyExtraArgs = "-- --deny warnings";
         });
 
-        "${pkgName}" = craneLib.buildPackage (commonArgs // {
+        pkg = craneLib.buildPackage (commonArgs // {
           inherit cargoArtifacts;
         });
       in
       rec {
-        packages.default = stm32wl-unlock;
+        packages.default = pkg;
         checks = {
-          inherit stm32wl-unlock clippy;
+          inherit pkg clippy;
 
           format = pkgs.runCommand "format"
             {

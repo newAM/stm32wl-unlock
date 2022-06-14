@@ -19,8 +19,12 @@
       packages.x86_64-linux.default = self.packages.x86_64-linux.${cargoToml.package.name};
 
       devShells.x86_64-linux.default = pkgs.mkShell {
-        inherit (self.packages.x86_64-linux.default) nativeBuildInputs;
-        buildInputs = self.packages.x86_64-linux.default.buildInputs ++ [ pkgs.clippy ];
+        nativeBuildInputs = self.packages.x86_64-linux.default.nativeBuildInputs ++ [
+          pkgs.gcc
+        ];
+        buildInputs = self.packages.x86_64-linux.default.buildInputs ++ [
+          pkgs.clippy
+        ];
       };
 
       checks.x86_64-linux = {

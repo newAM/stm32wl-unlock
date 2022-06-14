@@ -52,9 +52,10 @@ impl fmt::Display for Rdp {
 #[clap(about, version, author)]
 struct Args {
     /// Probe to use, 'VID:PID' or 'VID:PID:Serial'.
+    #[clap(arg_enum, value_parser)]
     probe: Option<probe_rs::DebugProbeSelector>,
     /// Connect to the target under reset
-    #[clap(long)]
+    #[clap(long, action)]
     connect_under_reset: bool,
 }
 

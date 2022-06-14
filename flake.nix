@@ -10,6 +10,11 @@
     in
     {
       packages.x86_64-linux.${cargoToml.package.name} = pkgs.callPackage ./package.nix { };
+      apps.x86_64-linux.${cargoToml.package.name} = {
+        type = "app";
+        program = "${self.packages.x86_64-linux.default}/bin/${cargoToml.package.name}";
+      };
+      apps.x86_64-linux.default = self.apps.x86_64-linux.${cargoToml.package.name};
 
       packages.x86_64-linux.default = self.packages.x86_64-linux.${cargoToml.package.name};
 

@@ -5,52 +5,20 @@ on:
     tags:
       - 'v*'
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: "19 3 * * 5"
 
 name: CI
 
 jobs:
-  build:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    env:
-      RUSTFLAGS: "-D warnings"
-      RUSTDOCFLAGS: "-D warnings"
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Install libusb, libudev
-        run: |
-          sudo apt update
-          sudo apt install -y libusb-1.0-0-dev libudev-dev
-      - run: cargo build --all-features
-      - run: cargo test --all-features
-
-  clippy:
-    name: Clippy
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: cachix/install-nix-action@v17
+      - uses: cachix/cachix-action@v10
         with:
-          toolchain: stable
-          components: clippy
-      - name: Install libusb, libudev
-        run: |
-          sudo apt update
-          sudo apt install -y libusb-1.0-0-dev libudev-dev
-      - run: cargo clippy --all-features -- --deny warnings
-
-  format:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: rustfmt
-      - run: cargo fmt -- --check
+          name: newam
+          authToken: '${{ secrets.CACHIX_TOKEN }}'
+      - run: nix flake check -L

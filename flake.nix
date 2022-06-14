@@ -36,7 +36,7 @@
         };
 
         cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {
-          pname = "${cargoToml.package.name}-deps";
+          pname = cargoToml.package.name;
         });
 
         clippy = craneLib.cargoClippy (commonArgs // {

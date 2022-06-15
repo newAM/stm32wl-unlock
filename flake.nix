@@ -16,12 +16,8 @@
   outputs = { self, nixpkgs, crane, flake-utils }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
-
+        pkgs = nixpkgs.legacyPackages.${system};
         cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
-
         craneLib = crane.lib.${system};
 
         commonArgs = {
@@ -35,38 +31,31 @@
           ];
         };
 
-        cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {
-          pname = cargoToml.package.name;
-        });
-
-        clippy = craneLib.cargoClippy (commonArgs // {
-          inherit cargoArtifacts;
-          cargoClippyExtraArgs = "-- --deny warnings";
-        });
-
-        pkg = craneLib.buildPackage (commonArgs // {
-          inherit cargoArtifacts;
-        });
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
       in
       rec {
-        packages.default = pkg;
+        packages.default = craneLib.buildPackage (commonArgs // {
+          inherit cargoArtifacts;
+        });
 
         apps.default = flake-utils.lib.mkApp { drv = packages.default; };
 
         checks = {
-          inherit pkg clippy;
+          pkg = packages.default;
 
-          format = pkgs.runCommand "format"
-            {
-              inherit (packages.default) nativeBuildInputs;
-              buildInputs = with pkgs; [ rustfmt cargo ] ++ packages.default.buildInputs;
-            } ''
-            ${pkgs.rustfmt}/bin/cargo-fmt fmt --manifest-path ${./.}/Cargo.toml -- --check
+          clippy = craneLib.cargoClippy (commonArgs // {
+            inherit cargoArtifacts;
+            cargoClippyExtraArgs = "-- --deny warnings";
+          });
+
+          rustfmt = craneLib.cargoFmt { src = ./.; };
+
+          nixpkgs-fmt = pkgs.runCommand "nixpkgs-fmt" { } ''
             ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt --check ${./.}
             touch $out
           '';
 
-          lint = pkgs.runCommand "lint" { } ''
+          statix = pkgs.runCommand "statix" { } ''
             ${pkgs.statix}/bin/statix check ${./.}
             touch $out
           '';

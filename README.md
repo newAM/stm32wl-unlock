@@ -1,5 +1,7 @@
 # stm32wl-unlock
 
+[![CI](https://github.com/newAM/stm32wl-unlock/workflows/CI/badge.svg)](https://github.com/newAM/stm32wl-unlock/actions)
+
 Unlock the flash on STM32WL microcontrollers.
 
 This is useful for the seeed studio STM32WL modules that have flash protection bits set.

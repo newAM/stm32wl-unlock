@@ -176,7 +176,7 @@ fn main() -> anyhow::Result<()> {
                 let flash_sr: u32 = core
                     .read_word_32(FLASH_SR_ADDR)
                     .context("failed to read FLASH_SR")?;
-                let elapsed: Duration = Instant::now() - start;
+                let elapsed: Duration = Instant::now().duration_since(start);
                 if flash_sr & BSY_MASK == 0 {
                     println!("erase duration: {elapsed:?}");
                     break;

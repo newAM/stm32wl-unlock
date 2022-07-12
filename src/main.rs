@@ -5,12 +5,12 @@ use anyhow::{anyhow, Context};
 use clap::Parser;
 use probe_rs::{Core, DebugProbeInfo, MemoryInterface, Probe, Session, Target};
 
-const FLASH_KEYR_ADDR: u32 = 0x5800_4008;
-const FLASH_OPTKEYR_ADDR: u32 = 0x5800_400C;
-const FLASH_SR_ADDR: u32 = 0x5800_4010;
-const FLASH_CR_ADDR: u32 = 0x5800_4014;
-const FLASH_OPTR_ADDR: u32 = 0x5800_4020;
-const FLASH_PCROP1AER_ADDR: u32 = 0x5800_4028;
+const FLASH_KEYR_ADDR: u64 = 0x5800_4008;
+const FLASH_OPTKEYR_ADDR: u64 = 0x5800_400C;
+const FLASH_SR_ADDR: u64 = 0x5800_4010;
+const FLASH_CR_ADDR: u64 = 0x5800_4014;
+const FLASH_OPTR_ADDR: u64 = 0x5800_4020;
+const FLASH_PCROP1AER_ADDR: u64 = 0x5800_4028;
 
 const PCROP_RDP_MASK: u32 = 1 << 31;
 const OPTSTRT_MASK: u32 = 1 << 17;
@@ -129,7 +129,9 @@ fn main() -> anyhow::Result<()> {
     }
     .context("failed to open probe")?;
 
-    let mut session: Session = probe.attach(target()).context("failed attach to chip")?;
+    let mut session: Session = probe
+        .attach(target(), probe_rs::Permissions::new().allow_erase_all())
+        .context("failed attach to chip")?;
     let mut core: Core = session.core(0).context("failed to attach to core 0")?;
 
     let flash_optr: u32 = core

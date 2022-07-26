@@ -6,8 +6,6 @@ on:
       - 'v*'
   pull_request:
   workflow_dispatch:
-  schedule:
-    - cron: "19 3 * * 5"
 
 name: CI
 

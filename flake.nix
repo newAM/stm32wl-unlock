@@ -7,58 +7,58 @@
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, crane, flake-utils }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
-        craneLib = crane.lib.${system};
+  outputs = {
+    self,
+    nixpkgs,
+    crane,
+    flake-utils,
+  }:
+    flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
+      inherit (nixpkgs.lib) recursiveUpdate;
+      pkgs = nixpkgs.legacyPackages.${system};
+      cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
+      craneLib = crane.lib.${system};
 
-        commonArgs = {
-          src = ./.;
-          nativeBuildInputs = with pkgs; [
-            pkg-config
-          ];
-          buildInputs = with pkgs; [
-            libusb1
-            udev
-          ];
-        };
+      commonArgs = {
+        src = ./.;
+        nativeBuildInputs = with pkgs; [
+          pkg-config
+        ];
+        buildInputs = with pkgs; [
+          libusb1
+          udev
+        ];
+      };
 
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-      in
-      rec {
-        packages.default = craneLib.buildPackage (commonArgs // {
-          inherit cargoArtifacts;
-        });
+      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
-        apps.default = flake-utils.lib.mkApp { drv = packages.default; };
+      commonArgsArtifacts = recursiveUpdate commonArgs {inherit cargoArtifacts;};
+    in rec {
+      packages.default = craneLib.buildPackage commonArgsArtifacts;
 
-        checks = {
-          pkg = packages.default;
+      apps.default = flake-utils.lib.mkApp {drv = packages.default;};
 
-          clippy = craneLib.cargoClippy (commonArgs // {
-            inherit cargoArtifacts;
-            cargoClippyExtraArgs = "-- --deny warnings";
-          });
+      checks = {
+        pkg = packages.default;
 
-          rustfmt = craneLib.cargoFmt { src = ./.; };
+        clippy =
+          craneLib.cargoClippy (recursiveUpdate commonArgsArtifacts
+            {cargoClippyExtraArgs = "--all-targets -- --deny warnings";});
 
-          nixpkgs-fmt = pkgs.runCommand "nixpkgs-fmt" { } ''
-            ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt --check ${./.}
-            touch $out
-          '';
+        rustfmt = craneLib.cargoFmt commonArgsArtifacts;
 
-          statix = pkgs.runCommand "statix" { } ''
-            ${pkgs.statix}/bin/statix check ${./.}
-            touch $out
-          '';
-        };
-      });
+        alejandra = pkgs.runCommand "alejandra" {} ''
+          ${pkgs.alejandra}/bin/alejandra --check ${./.}
+          touch $out
+        '';
+
+        statix = pkgs.runCommand "statix" {} ''
+          ${pkgs.statix}/bin/statix check ${./.}
+          touch $out
+        '';
+      };
+    });
 }

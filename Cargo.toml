@@ -12,5 +12,5 @@ repository = "https://github.com/newam/stm32wl-unlock"
 
 [dependencies]
 anyhow = "1"
-clap = { version = "3.2", features = ["derive"] }
+clap = { version = "4", features = ["derive"] }
 probe-rs = "0.13"

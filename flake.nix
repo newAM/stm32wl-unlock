@@ -19,44 +19,43 @@
     flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
       inherit (nixpkgs.lib) recursiveUpdate;
       pkgs = nixpkgs.legacyPackages.${system};
-      cargoToml = nixpkgs.lib.importTOML ./Cargo.toml;
       craneLib = crane.lib.${system};
 
-      commonArgs = {
-        src = ./.;
-        nativeBuildInputs = with pkgs; [
-          pkg-config
-        ];
-        buildInputs = with pkgs; [
-          libusb1
-          udev
-        ];
+      src = craneLib.cleanCargoSource ./.;
+      nativeBuildInputs = with pkgs; [pkg-config];
+      buildInputs = with pkgs; [libusb1 udev];
+
+      cargoArtifacts = craneLib.buildDepsOnly {
+        inherit src nativeBuildInputs buildInputs;
       };
-
-      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-      commonArgsArtifacts = recursiveUpdate commonArgs {inherit cargoArtifacts;};
     in rec {
-      packages.default = craneLib.buildPackage commonArgsArtifacts;
+      packages.default = craneLib.buildPackage {
+        inherit src nativeBuildInputs buildInputs cargoArtifacts;
+      };
 
       apps.default = flake-utils.lib.mkApp {drv = packages.default;};
 
-      checks = {
+      checks = let
+        nixSrc = nixpkgs.lib.sources.sourceFilesBySuffices ./. [".nix"];
+      in {
         pkg = packages.default;
 
-        clippy =
-          craneLib.cargoClippy (recursiveUpdate commonArgsArtifacts
-            {cargoClippyExtraArgs = "--all-targets -- --deny warnings";});
+        clippy = craneLib.cargoClippy {
+          inherit src nativeBuildInputs buildInputs cargoArtifacts;
+          cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+        };
 
-        rustfmt = craneLib.cargoFmt commonArgsArtifacts;
+        rustfmt = craneLib.cargoFmt {
+          inherit src;
+        };
 
         alejandra = pkgs.runCommand "alejandra" {} ''
-          ${pkgs.alejandra}/bin/alejandra --check ${./.}
+          ${pkgs.alejandra}/bin/alejandra --check ${nixSrc}
           touch $out
         '';
 
         statix = pkgs.runCommand "statix" {} ''
-          ${pkgs.statix}/bin/statix check ${./.}
+          ${pkgs.statix}/bin/statix check ${nixSrc}
           touch $out
         '';
       };

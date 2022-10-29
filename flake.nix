@@ -17,7 +17,6 @@
     flake-utils,
   }:
     flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
-      inherit (nixpkgs.lib) recursiveUpdate;
       pkgs = nixpkgs.legacyPackages.${system};
       craneLib = crane.lib.${system};
 
@@ -28,17 +27,17 @@
       cargoArtifacts = craneLib.buildDepsOnly {
         inherit src nativeBuildInputs buildInputs;
       };
-    in rec {
+    in {
       packages.default = craneLib.buildPackage {
         inherit src nativeBuildInputs buildInputs cargoArtifacts;
       };
 
-      apps.default = flake-utils.lib.mkApp {drv = packages.default;};
+      apps.default = flake-utils.lib.mkApp {drv = self.packages.${system}.default;};
 
       checks = let
         nixSrc = nixpkgs.lib.sources.sourceFilesBySuffices ./. [".nix"];
       in {
-        pkg = packages.default;
+        pkg = self.packages.${system}.default;
 
         clippy = craneLib.cargoClippy {
           inherit src nativeBuildInputs buildInputs cargoArtifacts;

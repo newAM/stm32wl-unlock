@@ -68,6 +68,8 @@ fn set_pcrop_rdp(core: &mut Core) -> anyhow::Result<()> {
         .read_word_32(FLASH_PCROP1AER_ADDR)
         .context("failed to read FLASH_PCROP1AER")?;
 
+    log::info!("pcrop1aer=0x{pcrop1aer:X}");
+
     if pcrop1aer & PCROP_RDP_MASK != PCROP_RDP_MASK {
         core.write_word_32(FLASH_PCROP1AER_ADDR, pcrop1aer | PCROP_RDP_MASK)
             .context("failed to write FLASH_PCROP1AER")?;
@@ -80,6 +82,8 @@ fn set_optstrt(core: &mut Core) -> anyhow::Result<()> {
     let flash_cr: u32 = core
         .read_word_32(FLASH_CR_ADDR)
         .context("failed to read FLASH_CR")?;
+
+    log::info!("flash_cr=0x{flash_cr:X}");
 
     core.write_word_32(FLASH_CR_ADDR, flash_cr | OPTSTRT_MASK)
         .context("failed to write FLASH_CR")?;
@@ -105,6 +109,8 @@ fn unlock_flash(core: &mut Core) -> anyhow::Result<()> {
 }
 
 fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
     let args: Args = Args::parse();
 
     let probe: Probe = match args.probe {
@@ -137,6 +143,7 @@ fn main() -> anyhow::Result<()> {
     let flash_optr: u32 = core
         .read_word_32(FLASH_OPTR_ADDR)
         .context("failed to read FLASH_OPTR")?;
+    log::info!("flash_optr=0x{flash_optr:X}");
 
     let rdp: Rdp = Rdp::from(flash_optr as u8);
 
@@ -162,6 +169,7 @@ fn main() -> anyhow::Result<()> {
             let flash_sr: u32 = core
                 .read_word_32(FLASH_SR_ADDR)
                 .context("failed to read FLASH_SR")?;
+            log::info!("flash_sr=0x{flash_sr:X}");
             if flash_sr & BSY_MASK != 0 {
                 return Err(anyhow!("flash is busy"));
             }

@@ -29,10 +29,12 @@
 
       cargoArtifacts = craneLib.buildDepsOnly {
         inherit src nativeBuildInputs buildInputs;
+        strictDeps = true;
       };
     in {
       packages.default = craneLib.buildPackage {
         inherit src nativeBuildInputs buildInputs cargoArtifacts;
+        strictDeps = true;
       };
 
       apps.default = flake-utils.lib.mkApp {drv = self.packages.${system}.default;};
@@ -44,6 +46,7 @@
 
         clippy = craneLib.cargoClippy {
           inherit src nativeBuildInputs buildInputs cargoArtifacts;
+          strictDeps = true;
           cargoClippyExtraArgs = "--all-targets -- --deny warnings";
         };
 

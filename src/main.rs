@@ -3,7 +3,7 @@ use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, Context};
 use clap::Parser;
-use probe_rs::{Core, DebugProbeInfo, MemoryInterface, Probe, Session, Target};
+use probe_rs::{Core, DebugProbeInfo, Lister, MemoryInterface, Probe, Session, Target};
 
 const FLASH_KEYR_ADDR: u64 = 0x5800_4008;
 const FLASH_OPTKEYR_ADDR: u64 = 0x5800_400C;
@@ -113,13 +113,14 @@ fn main() -> anyhow::Result<()> {
 
     let args: Args = Args::parse();
 
+    let lister: Lister = Lister::new();
     let probe: Probe = match args.probe {
-        Some(selector) => Probe::open(selector),
+        Some(selector) => lister.open(selector),
         None => {
-            let probe_list: Vec<DebugProbeInfo> = Probe::list_all();
+            let probe_list: Vec<DebugProbeInfo> = lister.list_all();
             match probe_list.len() {
                 0 => return Err(anyhow!("no probes found")),
-                1 => probe_list.first().unwrap().open(),
+                1 => probe_list.first().unwrap().open(&lister),
                 _ => {
                     println!("the following probes were found:");
                     probe_list

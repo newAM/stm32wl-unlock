@@ -3,7 +3,10 @@ use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, Context};
 use clap::Parser;
-use probe_rs::{Core, DebugProbeInfo, Lister, MemoryInterface, Probe, Session, Target};
+use probe_rs::{
+    probe::{list::Lister, DebugProbeInfo, DebugProbeSelector, Probe},
+    Core, MemoryInterface, Session, Target,
+};
 
 const FLASH_KEYR_ADDR: u64 = 0x5800_4008;
 const FLASH_OPTKEYR_ADDR: u64 = 0x5800_400C;
@@ -53,7 +56,7 @@ impl fmt::Display for Rdp {
 struct Args {
     /// Probe to use, 'VID:PID' or 'VID:PID:Serial'.
     #[clap(value_enum, value_parser)]
-    probe: Option<probe_rs::DebugProbeSelector>,
+    probe: Option<DebugProbeSelector>,
     /// Connect to the target under reset
     #[clap(long, action)]
     connect_under_reset: bool,

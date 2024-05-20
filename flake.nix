@@ -20,7 +20,7 @@
   }:
     flake-utils.lib.eachSystem ["x86_64-linux"] (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-      craneLib = crane.lib.${system};
+      craneLib = crane.mkLib pkgs;
 
       src = craneLib.cleanCargoSource ./.;
       nativeBuildInputs = with pkgs; [pkg-config];

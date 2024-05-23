@@ -123,7 +123,7 @@ fn main() -> anyhow::Result<()> {
             let probe_list: Vec<DebugProbeInfo> = lister.list_all();
             match probe_list.len() {
                 0 => return Err(anyhow!("no probes found")),
-                1 => probe_list.first().unwrap().open(&lister),
+                1 => probe_list.first().unwrap().open(),
                 _ => {
                     println!("the following probes were found:");
                     probe_list

@@ -1,11 +1,11 @@
 use core::fmt;
 use std::time::{Duration, Instant};
 
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use clap::Parser;
 use probe_rs::{
-    probe::{list::Lister, DebugProbeInfo, DebugProbeSelector, Probe},
     Core, MemoryInterface, Session, Target,
+    probe::{DebugProbeInfo, DebugProbeSelector, Probe, list::Lister},
 };
 
 const FLASH_KEYR_ADDR: u64 = 0x5800_4008;

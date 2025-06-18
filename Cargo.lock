@@ -1231,9 +1231,9 @@ checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
 
 [[package]]
 name = "probe-rs"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfb0c2aec76d73810f83a69dd8f4da9c9ceaeaaf049d15a7d91582b7b461ccd7"
+checksum = "9eeeb023f72af72f07be98e2186382cf39416da61de71bc67b64617825ef75a5"
 dependencies = [
  "anyhow",
  "async-io",
@@ -1266,9 +1266,9 @@ dependencies = [
 
 [[package]]
 name = "probe-rs-target"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6685ff72e9755c0292780aea5c5922d682dd7238e3f89b9e968d241beae29c8"
+checksum = "d6b9791b2b779029be8ae2a6f38199988f623c1934b170e10de492eaa10dd29a"
 dependencies = [
  "base64",
  "indexmap",

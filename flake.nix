@@ -33,7 +33,13 @@
         strictDeps = true;
       };
 
-      apps.default = flake-utils.lib.mkApp {drv = self.packages.${system}.default;};
+      apps.default = flake-utils.lib.mkApp {
+        drv = self.packages.${system}.default;
+      };
+
+      devShells.default = pkgs.mkShell {
+        inherit nativeBuildInputs buildInputs;
+      };
 
       checks = let
         nixSrc = nixpkgs.lib.sources.sourceFilesBySuffices ./. [".nix"];

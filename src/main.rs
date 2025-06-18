@@ -63,7 +63,9 @@ struct Args {
 }
 
 fn target() -> Target {
-    probe_rs::config::get_target_by_name("STM32WLE5JCIx").unwrap()
+    probe_rs::config::Registry::from_builtin_families()
+        .get_target_by_name("STM32WLE5JCIx")
+        .unwrap()
 }
 
 fn set_pcrop_rdp(core: &mut Core) -> anyhow::Result<()> {
